@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KWESTIA GŁÓWNA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #050505;
+            color: #22c55e; /* Tailwind green-500 */
+        }
+
+        .neon-text {
+            text-shadow: 0 0 5px #22c55e, 0 0 20px #16a34a;
+        }
+
+        .neon-border:focus {
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+        
+        .fade-out {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+        }
+
+        .fade-in {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #quest-screen {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in 0.3s, visibility 1s ease-in 0.3s; /* slight delay after fade out */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 overflow-hidden selection:bg-green-900 selection:text-green-100">
+
+    <!-- EKRET LOGOWANIA -->
+    <main id="login-screen" class="w-full max-w-md flex flex-col items-center absolute transition-all duration-700 z-10">
+        <h1 class="text-3xl sm:text-4xl font-bold mb-12 text-center neon-text tracking-widest">KWESTIA GŁÓWNA</h1>
+        
+        <div class="w-full flex flex-col items-center space-y-6">
+            <div class="w-full relative">
+                <input 
+                    type="password" 
+                    id="password-input" 
+                    placeholder="Wprowadź hasło" 
+                    class="w-full bg-transparent border-2 border-green-600 rounded-md py-3 px-4 text-center text-lg outline-none neon-border placeholder-green-800 transition-all focus:border-green-400"
+                    autocomplete="off"
+                >
+                <p id="error-msg" class="text-red-500 text-sm mt-2 text-center absolute w-full opacity-0 transition-opacity duration-300">
+                    Nieprawidłowe hasło. Spróbuj ponownie.
+                </p>
+            </div>
+
+            <button 
+                id="submit-btn" 
+                class="w-full border-2 border-green-600 text-green-500 uppercase tracking-widest font-bold py-3 rounded-md hover:bg-green-600 hover:text-black hover:shadow-[0_0_20px_rgba(34,197,94,0.6)] transition-all duration-300 active:scale-95"
+            >
+                Wejdź
+            </button>
+        </div>
+    </main>
+
+    <!-- EKRAN KWESTU (ZAGADKA) -->
+    <section id="quest-screen" class="w-full max-w-2xl flex flex-col items-center justify-center absolute z-0 p-4 text-center">
+        <div class="border border-green-800 p-8 rounded-lg bg-green-900/10 shadow-[0_0_30px_rgba(20,83,45,0.3)] w-full">
+            <h2 class="text-xs sm:text-sm text-green-600 mb-8 uppercase tracking-[0.3em]">Wiadomość przechwycona</h2>
+            
+            <p class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-widest mb-12 neon-text break-words leading-relaxed">
+                SRFCHNDM<br>QD<br>QDVWHSQB<br>HWDS
+            </p>
+            
+            <div class="mt-8 border-t border-green-800/50 pt-6">
+                <p class="text-sm sm:text-base text-green-400/80 italic">
+                    <span class="font-bold not-italic text-green-500">Podpowiedź:</span> Klasyczny szyfr władcy Rzymu (+3)
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('password-input');
+            const submitBtn = document.getElementById('submit-btn');
+            const errorMsg = document.getElementById('error-msg');
+            const loginScreen = document.getElementById('login-screen');
+            const questScreen = document.getElementById('quest-screen');
+
+            const CORRECT_PASSWORD = '12345';
+
+            function checkPassword() {
+                const enteredPassword = passwordInput.value.trim().toLowerCase();
+
+                if (enteredPassword === CORRECT_PASSWORD) {
+                    // Hide error if it was shown
+                    errorMsg.classList.remove('opacity-100');
+                    
+                    // Transition
+                    loginScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        loginScreen.style.display = 'none';
+                        questScreen.classList.add('fade-in');
+                    }, 800); // Wait for fade out to almost finish
+                } else {
+                    // Show error
+                    errorMsg.classList.add('opacity-100');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    
+                    // Shake effect for wrong password (optional but cool)
+                    passwordInput.classList.add('animate-pulse');
+                    setTimeout(() => passwordInput.classList.remove('animate-pulse'), 500);
+                }
+            }
+
+            submitBtn.addEventListener('click', checkPassword);
+
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            
+            // Hide error when user starts typing again
+            passwordInput.addEventListener('input', () => {
+                errorMsg.classList.remove('opacity-100');
+            });
+        });
+    </script>
+</body>
+</html>
