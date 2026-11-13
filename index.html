@@ -3,137 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KWESTIA GŁÓWNA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Quest 303</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
         body {
-            font-family: 'Share Tech Mono', monospace;
-            background-color: #050505;
-            color: #22c55e; /* Tailwind green-500 */
+            background-color: #0b0f0b;
+            color: #00ff66;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-
-        .neon-text {
-            text-shadow: 0 0 5px #22c55e, 0 0 20px #16a34a;
+        .container {
+            background: #111a11;
+            border: 2px solid #00ff66;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+            padding: 30px 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
         }
-
-        .neon-border:focus {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
         }
-        
-        .fade-out {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+        p {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
-
-        .fade-in {
-            opacity: 1 !important;
-            visibility: visible !important;
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0b0f0b;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            outline: none;
         }
-
-        #quest-screen {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 1s ease-in 0.3s, visibility 1s ease-in 0.3s; /* slight delay after fade out */
+        input::placeholder {
+            color: rgba(0, 255, 102, 0.4);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00ff66;
+            border: none;
+            color: #0b0f0b;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #00cc52;
+            box-shadow: 0 0 10px #00ff66;
+        }
+        .error {
+            color: #ff3333;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+        .hidden {
+            display: none;
+        }
+        /* Сірники */
+        .matches-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 25px 0;
+            font-size: 2rem;
+            letter-spacing: 5px;
+        }
+        .match-item {
+            cursor: pointer;
+            padding: 5px 10px;
+            border: 1px dashed rgba(0, 255, 102, 0.3);
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+        .match-item:hover, .match-item.selected {
+            background: rgba(0, 255, 102, 0.2);
+            border-color: #00ff66;
+        }
+        /* Таймер */
+        .timer-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ffcc00;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 overflow-hidden selection:bg-green-900 selection:text-green-100">
+<body>
 
-    <!-- EKRET LOGOWANIA -->
-    <main id="login-screen" class="w-full max-w-md flex flex-col items-center absolute transition-all duration-700 z-10">
-        <h1 class="text-3xl sm:text-4xl font-bold mb-12 text-center neon-text tracking-widest">KWESTIA GŁÓWNA</h1>
-        
-        <div class="w-full flex flex-col items-center space-y-6">
-            <div class="w-full relative">
-                <input 
-                    type="password" 
-                    id="password-input" 
-                    placeholder="Wprowadź hasło" 
-                    class="w-full bg-transparent border-2 border-green-600 rounded-md py-3 px-4 text-center text-lg outline-none neon-border placeholder-green-800 transition-all focus:border-green-400"
-                    autocomplete="off"
-                >
-                <p id="error-msg" class="text-red-500 text-sm mt-2 text-center absolute w-full opacity-0 transition-opacity duration-300">
-                    Nieprawidłowe hasło. Spróbuj ponownie.
-                </p>
-            </div>
-
-            <button 
-                id="submit-btn" 
-                class="w-full border-2 border-green-600 text-green-500 uppercase tracking-widest font-bold py-3 rounded-md hover:bg-green-600 hover:text-black hover:shadow-[0_0_20px_rgba(34,197,94,0.6)] transition-all duration-300 active:scale-95"
-            >
-                Wejdź
-            </button>
+    <div class="container">
+        <!-- Етап 1: Введення PIN -->
+        <div id="step-1">
+            <h1>SYSTEM DOSTĘPU</h1>
+            <p>Wprowadź kod PIN, aby kontynuować:</p>
+            <input type="password" id="pin-input" placeholder="PIN">
+            <button onclick="checkPin()">WEJDŹ</button>
+            <div id="pin-error" class="error">Błędny PIN! Spróbuj ponownie.</div>
         </div>
-    </main>
 
-    <!-- EKRAN KWESTU (ZAGADKA) -->
-    <section id="quest-screen" class="w-full max-w-2xl flex flex-col items-center justify-center absolute z-0 p-4 text-center">
-        <div class="border border-green-800 p-8 rounded-lg bg-green-900/10 shadow-[0_0_30px_rgba(20,83,45,0.3)] w-full">
-            <h2 class="text-xs sm:text-sm text-green-600 mb-8 uppercase tracking-[0.3em]">Wiadomość przechwycona</h2>
-            
-            <p class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-widest mb-12 neon-text break-words leading-relaxed">
-                SRFCHNDM<br>QD<br>QDVWHSQB<br>HWDS
-            </p>
-            
-            <div class="mt-8 border-t border-green-800/50 pt-6">
-                <p class="text-sm sm:text-base text-green-400/80 italic">
-                    <span class="font-bold not-italic text-green-500">Podpowiedź:</span> Klasyczny szyfr władcy Rzymu (+3)
-                </p>
-            </div>
+        <!-- Етап 2: Шифр з папірця -->
+        <div id="step-2" class="hidden">
+            <h1>ETAP 2</h1>
+            <p>NA 3 PIĘTRZE NA KARTCE SCHOWANE JEST HASŁO.<br><br>Wpisz odnalezione słowo:</p>
+            <input type="text" id="paper-input" placeholder="Słowo z kartki">
+            <button onclick="checkPaper()">SPRAWDŹ</button>
+            <div id="paper-error" class="error">Niepoprawne słowo!</div>
         </div>
-    </section>
+
+        <!-- Етап 3: Загадка з сірниками -->
+        <div id="step-3" class="hidden">
+            <h1>ZAGADKA Z ZAPAŚCIAMI</h1>
+            <p>Popraw równanie, przesuwając (klikając) odpowiednią zapašku/cyfrę:</p>
+            <div class="matches-area">
+                <span>6 + 4 = 4</span>
+            </div>
+            <p style="font-size: 0.8rem; opacity: 0.7;">Kliknij na równanie, aby je naprawić (zamień wynik lub znak)</p>
+            <input type="text" id="math-input" placeholder="Wpisz poprawne równanie (np. 5+4=9)">
+            <button onclick="checkMath()">ZATWIERDŹ</button>
+            <div id="math-error" class="error">Błędny wynik! Myśl dalej.</div>
+        </div>
+
+        <!-- Етап 4: Таймер на 10 годин -->
+        <div id="step-4" class="hidden">
+            <h1>NASTĘPNY ETAP ZA:</h1>
+            <div class="timer-display" id="countdown">10:00:00</div>
+            <p>Przygotuj się. Czas startuje!</p>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const passwordInput = document.getElementById('password-input');
-            const submitBtn = document.getElementById('submit-btn');
-            const errorMsg = document.getElementById('error-msg');
-            const loginScreen = document.getElementById('login-screen');
-            const questScreen = document.getElementById('quest-screen');
+        const CORRECT_PIN = "12345";
+        const PAPER_PASSWORD = "KLUCZ"; // Можеш змінити на своє слово
 
-            const CORRECT_PASSWORD = '12345';
-
-            function checkPassword() {
-                const enteredPassword = passwordInput.value.trim().toLowerCase();
-
-                if (enteredPassword === CORRECT_PASSWORD) {
-                    // Hide error if it was shown
-                    errorMsg.classList.remove('opacity-100');
-                    
-                    // Transition
-                    loginScreen.classList.add('fade-out');
-                    setTimeout(() => {
-                        loginScreen.style.display = 'none';
-                        questScreen.classList.add('fade-in');
-                    }, 800); // Wait for fade out to almost finish
-                } else {
-                    // Show error
-                    errorMsg.classList.add('opacity-100');
-                    passwordInput.value = '';
-                    passwordInput.focus();
-                    
-                    // Shake effect for wrong password (optional but cool)
-                    passwordInput.classList.add('animate-pulse');
-                    setTimeout(() => passwordInput.classList.remove('animate-pulse'), 500);
-                }
+        function checkPin() {
+            const val = document.getElementById('pin-input').value;
+            if (val === CORRECT_PIN) {
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
+            } else {
+                document.getElementById('pin-error').style.display = 'block';
             }
+        }
 
-            submitBtn.addEventListener('click', checkPassword);
+        function checkPaper() {
+            const val = document.getElementById('paper-input').value.trim().toUpperCase();
+            if (val === PAPER_PASSWORD) {
+                document.getElementById('step-2').classList.add('hidden');
+                document.getElementById('step-3').classList.remove('hidden');
+            } else {
+                document.getElementById('paper-error').style.display = 'block';
+            }
+        }
 
-            passwordInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    checkPassword();
-                }
-            });
+        function checkMath() {
+            const val = document.getElementById('math-input').value.replace(/\s+/g, '');
+            // Дозволені варіанти правильного розв'язку рівняння з сірниками (наприклад 5+4=9 або 0+4=4 тощо)
+            if (val === "5+4=9" || val === "0+4=4" || val === "8-4=4") {
+                document.getElementById('step-3').classList.add('hidden');
+                document.getElementById('step-4').classList.remove('hidden');
+                startTimer(10 * 3600); // 10 годин в секундах
+            } else {
+                document.getElementById('math-error').style.display = 'block';
+            }
+        }
+
+        function startTimer(duration) {
+            let timer = duration, hours, minutes, seconds;
+            const display = document.getElementById('countdown');
             
-            // Hide error when user starts typing again
-            passwordInput.addEventListener('input', () => {
-                errorMsg.classList.remove('opacity-100');
-            });
-        });
+            setInterval(function () {
+                hours = parseInt(timer / 3600, 10);
+                minutes = parseInt((timer % 3600) / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                hours = hours < 10 ? "0" + hours : hours;
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = hours + ":" + minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    timer = 0;
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
