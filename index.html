@@ -24,20 +24,20 @@
             background: #111a11;
             border: 2px solid #00ff66;
             box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
-            padding: 30px 20px;
+            padding: 25px 15px;
             border-radius: 10px;
-            width: 90%;
+            width: 92%;
             max-width: 400px;
             text-align: center;
         }
         h1 {
-            font-size: 1.4rem;
-            margin-bottom: 20px;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
             text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
         }
         p {
-            font-size: 0.95rem;
-            margin-bottom: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
             line-height: 1.4;
         }
         input {
@@ -51,9 +51,11 @@
             margin-bottom: 15px;
             text-align: center;
             outline: none;
+            text-transform: uppercase;
         }
         input::placeholder {
             color: rgba(0, 255, 102, 0.4);
+            text-transform: none;
         }
         button {
             width: 100%;
@@ -80,20 +82,49 @@
         .hidden {
             display: none;
         }
-        .puzzle-box {
-            background: rgba(0, 255, 102, 0.05);
-            border: 1px dashed #00ff66;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-            color: #ffcc00;
+        /* Wordle стилі */
+        .wordle-grid {
+            display: grid;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
         }
+        .wordle-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            justify-content: center;
+        }
+        .wordle-cell {
+            aspect-ratio: 1;
+            border: 2px solid rgba(0, 255, 102, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            background: #0b0f0b;
+            border-radius: 4px;
+        }
+        .wordle-cell.correct {
+            background: #00aa44;
+            border-color: #00aa44;
+        }
+        .wordle-cell.present {
+            background: #b59f3b;
+            border-color: #b59f3b;
+        }
+        .wordle-cell.absent {
+            background: #333;
+            border-color: #333;
+        }
+        /* Таймер */
         .timer-display {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: bold;
             color: #ffcc00;
-            margin: 20px 0;
+            margin: 15px 0;
             text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
         }
     </style>
@@ -101,7 +132,7 @@
 <body>
 
     <div class="container">
-        <!-- Етап 1: Введення PIN -->
+        <!-- Етап 1: PIN -->
         <div id="step-1">
             <h1>SYSTEM DOSTĘPU</h1>
             <p>Wprowadź kod PIN, aby kontynuować:</p>
@@ -110,7 +141,7 @@
             <div id="pin-error" class="error">Błędny PIN! Spróbuj ponownie.</div>
         </div>
 
-        <!-- Етап 2: Шифр з папірця -->
+        <!-- Етап 2: Папірець -->
         <div id="step-2" class="hidden">
             <h1>ETAP 2</h1>
             <p>NA 3 PIĘTRZE NA KARTCE SCHOWANE JEST HASŁO.<br><br>Wpisz odnalezione słowo:</p>
@@ -119,31 +150,33 @@
             <div id="paper-error" class="error">Niepoprawne słowo!</div>
         </div>
 
-        <!-- Етап 3: Логічна загадка (замість сірників) -->
+        <!-- Етап 3: Wordle (англійською) -->
         <div id="step-3" class="hidden">
-            <h1>ETAP 3: ZAGADKA LOGICZNA</h1>
-            <p>Rozwiąż zagadkę matematyczną:</p>
-            <div class="puzzle-box">
-                2 + 3 = 10<br>
-                3 + 7 = 30<br>
-                4 + 5 = ?
+            <h1>ETAP 3: WORDLE</h1>
+            <p>Odgadnij angielskie słowo (5 liter):</p>
+            <div class="wordle-grid" id="wordle-grid">
+                <!-- Генерується через JS -->
             </div>
-            <input type="number" id="math-input" placeholder="Twój wynik">
-            <button onclick="checkMath()">ZATWIERDŹ</button>
-            <div id="math-error" class="error">Błędny wynik! Pomyśl jeszcze raz.</div>
+            <input type="text" id="wordle-input" maxlength="5" placeholder="Wpisz słowo">
+            <button onclick="checkWordle()">SPRAWDŹ SŁOWO</button>
+            <div id="wordle-error" class="error">Słowo musi mieć 5 liter!</div>
         </div>
 
-        <!-- Етап 4: Таймер на 10 годин -->
+        <!-- Етап 4: Таймер -->
         <div id="step-4" class="hidden">
-            <h1>NASTĘPNY ETAP ZA:</h1>
+            <h1>GRATULACJE!</h1>
+            <p>NASTĘPNA WSKAZÓWKA BĘDZIE ZA:</p>
             <div class="timer-display" id="countdown">10:00:00</div>
-            <p>Przygotuj się. Czas startuje!</p>
+            <p style="font-size: 0.8rem; opacity: 0.7;">Zrób zrzut ekranu i poczekaj na ten czas.</p>
         </div>
     </div>
 
     <script>
         const CORRECT_PIN = "12345";
         const PAPER_PASSWORD = "KLUCZ"; 
+        const SECRET_WORD = "PLANT"; // Загадкове слово англійською (можеш змінити на інше з 5 літер)
+        let currentAttempt = 0;
+        const maxAttempts = 5;
 
         function checkPin() {
             const val = document.getElementById('pin-input').value;
@@ -156,26 +189,75 @@
         }
 
         function checkPaper() {
-            const val = document.getElementById('paper-input'].value.trim().toUpperCase();
+            const val = document.getElementById('paper-input').value.trim().toUpperCase();
             if (val === PAPER_PASSWORD) {
                 document.getElementById('step-2').classList.add('hidden');
                 document.getElementById('step-3').classList.remove('hidden');
+                initWordleBoard();
             } else {
                 document.getElementById('paper-error').style.display = 'block';
             }
         }
 
-        function checkMath() {
-            const val = document.getElementById('math-input').value.trim();
-            // Логіка: перше число помножити на друге і додати перше (або просто 4 * (5+...) -> 4*5 = 20)
-            // Популярна логіка ребуса: 2*(2+3)=10? Ні, тут 2*3+4? Або 2+3=5, 5*2=10. 3+7=10, 10*3=30. Тоді 4+5=9, 9*4=36.
-            // Правильна відповідь: 36 (або якщо просто інша логіка, можна вписати кілька варіантів)
-            if (val === "36" || val === "27") { 
-                document.getElementById('step-3').classList.add('hidden');
-                document.getElementById('step-4').classList.remove('hidden');
-                startTimer(10 * 3600); // 10 годин
-            } else {
-                document.getElementById('math-error').style.display = 'block';
+        // Ініціалізація сітки Wordle
+        function initWordleBoard() {
+            const grid = document.getElementById('wordle-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < maxAttempts; i++) {
+                const row = document.createElement('div');
+                row.className = 'wordle-row';
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'wordle-cell';
+                    cell.id = `cell-${i}-${j}`;
+                    row.appendChild(cell);
+                }
+                grid.appendChild(row);
+            }
+        }
+
+        function checkWordle() {
+            const inputField = document.getElementById('wordle-input');
+            const val = inputField.value.trim().toUpperCase();
+            const errorDiv = document.getElementById('wordle-error');
+
+            if (val.length !== 5) {
+                errorDiv.style.display = 'block';
+                return;
+            }
+            errorDiv.style.display = 'none';
+
+            // Заповнюємо поточний рядок
+            for (let j = 0; j < 5; j++) {
+                const cell = document.getElementById(`cell-${currentAttempt}-${j}`);
+                const letter = val[j];
+                cell.textContent = letter;
+
+                if (SECRET_WORD[j] === letter) {
+                    cell.classList.add('correct');
+                } else if (SECRET_WORD.includes(letter)) {
+                    cell.classList.add('present');
+                } else {
+                    cell.classList.add('absent');
+                }
+            }
+
+            if (val === SECRET_WORD) {
+                setTimeout(() => {
+                    document.getElementById('step-3').classList.add('hidden');
+                    document.getElementById('step-4').classList.remove('hidden');
+                    startTimer(10 * 3600); // 10 годин
+                }, 1000);
+                return;
+            }
+
+            currentAttempt++;
+            inputField.value = '';
+
+            if (currentAttempt >= maxAttempts) {
+                errorDiv.textContent = "Koniec prób! Odśwież stronę.";
+                errorDiv.style.display = 'block';
+                inputField.disabled = true;
             }
         }
 
