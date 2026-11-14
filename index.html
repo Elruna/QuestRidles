@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             background-color: #0b0f0b;
@@ -18,6 +19,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 15px 0;
             overflow-x: hidden;
         }
         .container {
@@ -26,8 +28,8 @@
             box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
             padding: 25px 15px;
             border-radius: 10px;
-            width: 92%;
-            max-width: 400px;
+            width: 94%;
+            max-width: 420px;
             text-align: center;
         }
         h1 {
@@ -68,32 +70,45 @@
             border-radius: 5px;
             cursor: pointer;
             transition: 0.2s;
+            margin-bottom: 8px;
         }
         button:hover {
             background: #00cc52;
             box-shadow: 0 0 10px #00ff66;
         }
-        .error {
-            color: #ff3333;
+        button.secondary-btn {
+            background: transparent;
+            border: 1px solid #00ff66;
+            color: #00ff66;
             font-size: 0.85rem;
-            margin-top: 10px;
+            padding: 9px;
+        }
+        button.secondary-btn:hover {
+            background: rgba(0, 255, 102, 0.15);
+        }
+        .error {
+            color: #ff4444;
+            font-size: 0.85rem;
+            margin-top: 8px;
             display: none;
+            line-height: 1.3;
         }
         .hidden {
-            display: none;
+            display: none !important;
         }
+
         /* Wordle стилі */
         .wordle-grid {
             display: grid;
             grid-template-rows: repeat(5, 1fr);
             gap: 5px;
-            margin-bottom: 15px;
+            margin: 0 auto 15px auto;
+            max-width: 260px;
         }
         .wordle-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 5px;
-            justify-content: center;
         }
         .wordle-cell {
             aspect-ratio: 1;
@@ -101,7 +116,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: bold;
             color: #fff;
             background: #0b0f0b;
@@ -116,16 +131,176 @@
             border-color: #b59f3b;
         }
         .wordle-cell.absent {
-            background: #333;
-            border-color: #333;
+            background: #2c2c2c;
+            border-color: #2c2c2c;
         }
+
+        /* Інтерактивні сірники */
+        .match-status {
+            font-size: 0.8rem;
+            color: #ffcc00;
+            margin-bottom: 12px;
+            min-height: 18px;
+        }
+        .match-board {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: #080c08;
+            border: 1px solid rgba(0, 255, 102, 0.35);
+            border-radius: 8px;
+            padding: 20px 8px;
+            margin-bottom: 15px;
+            user-select: none;
+        }
+        .digit-box {
+            position: relative;
+            width: 48px;
+            height: 88px;
+        }
+        .op-box {
+            position: relative;
+            width: 38px;
+            height: 88px;
+        }
+        .eq-box {
+            position: relative;
+            width: 34px;
+            height: 88px;
+        }
+
+        /* Зона натискання сірника */
+        .slot {
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+        /* Горизонтальні слоти */
+        .slot.h {
+            width: 36px;
+            height: 18px;
+            left: 6px;
+        }
+        .slot.h.top { top: -4px; }
+        .slot.h.mid { top: 35px; }
+        .slot.h.bot { top: 74px; }
+
+        /* Вертикальні слоти */
+        .slot.v {
+            width: 18px;
+            height: 36px;
+        }
+        .slot.v.tl { top: 6px; left: -4px; }
+        .slot.v.tr { top: 6px; right: -4px; }
+        .slot.v.bl { top: 46px; left: -4px; }
+        .slot.v.br { top: 46px; right: -4px; }
+
+        /* Оператори + / - та = */
+        .op-box .slot.h.op-h {
+            width: 34px;
+            height: 18px;
+            left: 2px;
+            top: 35px;
+        }
+        .op-box .slot.v.op-v {
+            width: 18px;
+            height: 34px;
+            left: 10px;
+            top: 27px;
+            z-index: 3;
+        }
+        .eq-box .slot.h.eq-t {
+            width: 30px;
+            height: 16px;
+            left: 2px;
+            top: 27px;
+        }
+        .eq-box .slot.h.eq-b {
+            width: 30px;
+            height: 16px;
+            left: 2px;
+            top: 45px;
+        }
+
+        /* Візуал самого сірника і порожнього місця */
+        .stick-visual {
+            border-radius: 3px;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+        .slot.h .stick-visual {
+            width: 30px;
+            height: 5px;
+        }
+        .slot.v .stick-visual {
+            width: 5px;
+            height: 30px;
+        }
+
+        /* Порожній слот */
+        .slot.empty .stick-visual {
+            border: 1px dashed rgba(0, 255, 102, 0.25);
+            background: rgba(0, 255, 102, 0.03);
+        }
+        .slot.empty:hover .stick-visual {
+            border-color: rgba(0, 255, 102, 0.7);
+            background: rgba(0, 255, 102, 0.12);
+        }
+
+        /* Заповнений сірник (дерев'яна паличка + червона голівка) */
+        .slot.filled .stick-visual {
+            background: linear-gradient(90deg, #deb887, #c69c6d);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+        }
+        .slot.filled.h .stick-visual::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -1px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff5533, #cc1100);
+            box-shadow: 0 0 4px rgba(255, 60, 0, 0.6);
+        }
+        .slot.filled.v .stick-visual::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff5533, #cc1100);
+            box-shadow: 0 0 4px rgba(255, 60, 0, 0.6);
+        }
+
+        /* Вибраний сірник (піднятий) */
+        .slot.selected .stick-visual {
+            transform: scale(1.22);
+            box-shadow: 0 0 12px #ffcc00, 0 0 4px #ffffff;
+            background: #ffe699;
+            z-index: 10;
+        }
+
         /* Таймер */
+        .timer-label {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #00ff66;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
         .timer-display {
-            font-size: 2rem;
+            font-size: 2.3rem;
             font-weight: bold;
             color: #ffcc00;
             margin: 15px 0;
-            text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.45);
         }
     </style>
 </head>
@@ -136,7 +311,7 @@
         <div id="step-1">
             <h1>SYSTEM DOSTĘPU</h1>
             <p>Wprowadź kod PIN, aby kontynuować:</p>
-            <input type="password" id="pin-input" placeholder="PIN">
+            <input type="password" id="pin-input" placeholder="PIN" onkeypress="if(event.key==='Enter') checkPin()">
             <button onclick="checkPin()">WEJDŹ</button>
             <div id="pin-error" class="error">Błędny PIN! Spróbuj ponownie.</div>
         </div>
@@ -145,7 +320,7 @@
         <div id="step-2" class="hidden">
             <h1>ETAP 2</h1>
             <p>NA 3 PIĘTRZE NA KARTCE SCHOWANE JEST HASŁO.<br><br>Wpisz odnalezione słowo:</p>
-            <input type="text" id="paper-input" placeholder="Słowo z kartki">
+            <input type="text" id="paper-input" placeholder="Słowo z kartki" onkeypress="if(event.key==='Enter') checkPaper()">
             <button onclick="checkPaper()">SPRAWDŹ</button>
             <div id="paper-error" class="error">Niepoprawne słowo!</div>
         </div>
@@ -154,35 +329,97 @@
         <div id="step-3" class="hidden">
             <h1>ETAP 3: WORDLE</h1>
             <p>Odgadnij angielskie słowo (5 liter):</p>
-            <div class="wordle-grid" id="wordle-grid">
-                <!-- Генерується через JS -->
-            </div>
-            <input type="text" id="wordle-input" maxlength="5" placeholder="Wpisz słowo">
-            <button onclick="checkWordle()">SPRAWDŹ SŁOWO</button>
+            <div class="wordle-grid" id="wordle-grid"></div>
+            <input type="text" id="wordle-input" maxlength="5" placeholder="Wpisz słowo" onkeypress="if(event.key==='Enter') checkWordle()">
+            <button id="wordle-btn" onclick="checkWordle()">SPRAWDŹ SŁOWO</button>
+            <button id="wordle-retry" class="secondary-btn hidden" onclick="resetWordle()">SPRÓBUJ PONOWNIE</button>
             <div id="wordle-error" class="error">Słowo musi mieć 5 liter!</div>
         </div>
 
-        <!-- Етап 4: Таймер -->
+        <!-- Етап 4: Складна загадка з сірниками -->
         <div id="step-4" class="hidden">
-            <h1>GRATULACJE!</h1>
-            <p>NASTĘPNA WSKAZÓWKA BĘDZIE ZA:</p>
-            <div class="timer-display" id="countdown">10:00:00</div>
-            <p style="font-size: 0.8rem; opacity: 0.7;">Zrób zrzut ekranu i poczekaj na ten czas.</p>
+            <h1>ETAP 4: ZAPAŁKI</h1>
+            <p>Przełóż <strong>DOKŁADNIE 2 zapałki</strong>, aby równanie stało się prawdziwe:</p>
+            
+            <div class="match-status" id="match-status">Kliknij zapałkę, aby ją podnieść</div>
+
+            <div class="match-board" id="match-board">
+                <!-- Генерується через JS -->
+            </div>
+
+            <button onclick="checkMatches()">ZATWIERDŹ RÓWNANIE</button>
+            <button class="secondary-btn" onclick="resetMatches()">RESETUJ ZAPAŁKI</button>
+            <div id="match-error" class="error"></div>
+        </div>
+
+        <!-- Етап 5: Таймер на 3 години -->
+        <div id="step-5" class="hidden">
+            <h1>ETAP ZAKOŃCZONY</h1>
+            <p class="timer-label">NASTĘPNĄ WSKAZÓWKĘ SPRAWDŹ NA STRONIE ZA:</p>
+            <div class="timer-display" id="countdown">03:00:00</div>
+            <p style="font-size: 0.8rem; opacity: 0.75;">Czas płynie nawet po zamknięciu strony.</p>
         </div>
     </div>
 
     <script>
         const CORRECT_PIN = "12345";
-        const PAPER_PASSWORD = "KLUCZ"; 
-        const SECRET_WORD = "PLANT"; // Загадкове слово англійською (можеш змінити на інше з 5 літер)
+        const PAPER_PASSWORD = "KLUCZ";
+        const SECRET_WORD = "PLANT";
+        const TIMER_HOURS = 3;
+
         let currentAttempt = 0;
         const maxAttempts = 5;
+        let timerInterval = null;
+
+        // Початковий стан сірників: 9 - 3 = 0
+        // Сегменти цифри: [top, tl, tr, mid, bl, br, bot]
+        const INITIAL_SLOTS = [
+            // Digit 1: 9
+            true, true, true, true, false, true, true,
+            // Operator: - [horiz, vert]
+            true, false,
+            // Digit 2: 3
+            true, false, true, true, false, true, true,
+            // Equals: = [top, bot]
+            true, true,
+            // Digit 3: 0
+            true, true, true, false, true, true, true
+        ];
+
+        let slots = [...INITIAL_SLOTS];
+        let selectedIndex = null;
+
+        // Відновлення прогресу при завантаженні сторінки
+        window.onload = function() {
+            const savedStep = localStorage.getItem('quest_step');
+            const savedEndTime = localStorage.getItem('quest_timer_end');
+
+            if (savedStep === '5' && savedEndTime) {
+                showStep(5);
+                startPersistentTimer(parseInt(savedEndTime, 10));
+            } else if (savedStep === '4') {
+                showStep(4);
+                renderMatchBoard();
+            } else if (savedStep === '3') {
+                showStep(3);
+                initWordleBoard();
+            } else if (savedStep === '2') {
+                showStep(2);
+            }
+        };
+
+        function showStep(stepNum) {
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`step-${i}`).classList.add('hidden');
+            }
+            document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+            localStorage.setItem('quest_step', stepNum.toString());
+        }
 
         function checkPin() {
-            const val = document.getElementById('pin-input').value;
+            const val = document.getElementById('pin-input').value.trim();
             if (val === CORRECT_PIN) {
-                document.getElementById('step-1').classList.add('hidden');
-                document.getElementById('step-2').classList.remove('hidden');
+                showStep(2);
             } else {
                 document.getElementById('pin-error').style.display = 'block';
             }
@@ -191,16 +428,16 @@
         function checkPaper() {
             const val = document.getElementById('paper-input').value.trim().toUpperCase();
             if (val === PAPER_PASSWORD) {
-                document.getElementById('step-2').classList.add('hidden');
-                document.getElementById('step-3').classList.remove('hidden');
+                showStep(3);
                 initWordleBoard();
             } else {
                 document.getElementById('paper-error').style.display = 'block';
             }
         }
 
-        // Ініціалізація сітки Wordle
+        // --- WORDLE ---
         function initWordleBoard() {
+            currentAttempt = 0;
             const grid = document.getElementById('wordle-grid');
             grid.innerHTML = '';
             for (let i = 0; i < maxAttempts; i++) {
@@ -214,6 +451,16 @@
                 }
                 grid.appendChild(row);
             }
+            const input = document.getElementById('wordle-input');
+            input.value = '';
+            input.disabled = false;
+            document.getElementById('wordle-btn').classList.remove('hidden');
+            document.getElementById('wordle-retry').classList.add('hidden');
+            document.getElementById('wordle-error').style.display = 'none';
+        }
+
+        function resetWordle() {
+            initWordleBoard();
         }
 
         function checkWordle() {
@@ -221,13 +468,13 @@
             const val = inputField.value.trim().toUpperCase();
             const errorDiv = document.getElementById('wordle-error');
 
-            if (val.length !== 5) {
+            if (val.length !== 5 || !/^[A-Z]+$/.test(val)) {
+                errorDiv.textContent = "Słowo musi mieć 5 angielskich liter!";
                 errorDiv.style.display = 'block';
                 return;
             }
             errorDiv.style.display = 'none';
 
-            // Заповнюємо поточний рядок
             for (let j = 0; j < 5; j++) {
                 const cell = document.getElementById(`cell-${currentAttempt}-${j}`);
                 const letter = val[j];
@@ -244,10 +491,9 @@
 
             if (val === SECRET_WORD) {
                 setTimeout(() => {
-                    document.getElementById('step-3').classList.add('hidden');
-                    document.getElementById('step-4').classList.remove('hidden');
-                    startTimer(10 * 3600); // 10 годин
-                }, 1000);
+                    showStep(4);
+                    renderMatchBoard();
+                }, 900);
                 return;
             }
 
@@ -255,31 +501,214 @@
             inputField.value = '';
 
             if (currentAttempt >= maxAttempts) {
-                errorDiv.textContent = "Koniec prób! Odśwież stronę.";
+                errorDiv.textContent = "Koniec prób! Spróbuj jeszcze raz.";
                 errorDiv.style.display = 'block';
                 inputField.disabled = true;
+                document.getElementById('wordle-btn').classList.add('hidden');
+                document.getElementById('wordle-retry').classList.remove('hidden');
             }
         }
 
-        function startTimer(duration) {
-            let timer = duration, hours, minutes, seconds;
-            const display = document.getElementById('countdown');
-            
-            setInterval(function () {
-                hours = parseInt(timer / 3600, 10);
-                minutes = parseInt((timer % 3600) / 60, 10);
-                seconds = parseInt(timer % 60, 10);
+        // --- СІРНИКИ ---
+        function renderMatchBoard() {
+            const board = document.getElementById('match-board');
+            board.innerHTML = '';
 
-                hours = hours < 10 ? "0" + hours : hours;
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+            const digitClasses = [
+                'h top', 'v tl', 'v tr', 'h mid', 'v bl', 'v br', 'h bot'
+            ];
 
-                display.textContent = hours + ":" + minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    timer = 0;
+            // Допоміжна функція для створення слоту
+            function createSlot(index, extraClass) {
+                const slot = document.createElement('div');
+                slot.className = `slot ${extraClass} ${slots[index] ? 'filled' : 'empty'}`;
+                if (selectedIndex === index) {
+                    slot.classList.add('selected');
                 }
-            }, 1000);
+                slot.onclick = () => handleSlotClick(index);
+
+                const visual = document.createElement('div');
+                visual.className = 'stick-visual';
+                slot.appendChild(visual);
+                return slot;
+            }
+
+            // Digit 1 (індекси 0..6)
+            const d1 = document.createElement('div');
+            d1.className = 'digit-box';
+            for (let i = 0; i < 7; i++) d1.appendChild(createSlot(i, digitClasses[i]));
+            board.appendChild(d1);
+
+            // Operator (індекси 7..8)
+            const op = document.createElement('div');
+            op.className = 'op-box';
+            op.appendChild(createSlot(7, 'h op-h'));
+            op.appendChild(createSlot(8, 'v op-v'));
+            board.appendChild(op);
+
+            // Digit 2 (індекси 9..15)
+            const d2 = document.createElement('div');
+            d2.className = 'digit-box';
+            for (let i = 0; i < 7; i++) d2.appendChild(createSlot(9 + i, digitClasses[i]));
+            board.appendChild(d2);
+
+            // Equals (індекси 16..17)
+            const eq = document.createElement('div');
+            eq.className = 'eq-box';
+            eq.appendChild(createSlot(16, 'h eq-t'));
+            eq.appendChild(createSlot(17, 'h eq-b'));
+            board.appendChild(eq);
+
+            // Digit 3 (індекси 18..24)
+            const d3 = document.createElement('div');
+            d3.className = 'digit-box';
+            for (let i = 0; i < 7; i++) d3.appendChild(createSlot(18 + i, digitClasses[i]));
+            board.appendChild(d3);
+
+            updateMatchStatus();
+        }
+
+        function handleSlotClick(index) {
+            document.getElementById('match-error').style.display = 'none';
+
+            if (selectedIndex === null) {
+                // Підняти сірник
+                if (slots[index]) {
+                    selectedIndex = index;
+                    renderMatchBoard();
+                }
+            } else if (selectedIndex === index) {
+                // Покласти назад на те саме місце
+                selectedIndex = null;
+                renderMatchBoard();
+            } else if (slots[index]) {
+                // Перемкнутися на інший сірник
+                selectedIndex = index;
+                renderMatchBoard();
+            } else {
+                // Перемістити сірник у порожній слот
+                slots[selectedIndex] = false;
+                slots[index] = true;
+                selectedIndex = null;
+                renderMatchBoard();
+            }
+        }
+
+        function getMovedCount() {
+            let moved = 0;
+            for (let i = 0; i < INITIAL_SLOTS.length; i++) {
+                if (INITIAL_SLOTS[i] && !slots[i]) {
+                    moved++;
+                }
+            }
+            return moved;
+        }
+
+        function updateMatchStatus() {
+            const status = document.getElementById('match-status');
+            const moved = getMovedCount();
+            if (selectedIndex !== null) {
+                status.textContent = "Zapałka podniesiona — kliknij puste miejsce";
+            } else {
+                status.textContent = `Przełożone zapałki: ${moved} / 2`;
+            }
+        }
+
+        function resetMatches() {
+            slots = [...INITIAL_SLOTS];
+            selectedIndex = null;
+            document.getElementById('match-error').style.display = 'none';
+            renderMatchBoard();
+        }
+
+        function parseDigit(slice) {
+            const key = slice.map(b => b ? '1' : '0').join('');
+            const map = {
+                '1110111': 0,
+                '0010010': 1,
+                '0100100': 1,
+                '1011101': 2,
+                '1011011': 3,
+                '0111010': 4,
+                '1101011': 5,
+                '1101111': 6,
+                '1010010': 7,
+                '1111111': 8,
+                '1111011': 9
+            };
+            return map.hasOwnProperty(key) ? map[key] : null;
+        }
+
+        function checkMatches() {
+            const errorDiv = document.getElementById('match-error');
+
+            if (selectedIndex !== null) {
+                errorDiv.textContent = "Najpierw odłóż podniesioną zapałkę na puste miejsce!";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const moved = getMovedCount();
+            const n1 = parseDigit(slots.slice(0, 7));
+            const opH = slots[7];
+            const opV = slots[8];
+            const n2 = parseDigit(slots.slice(9, 16));
+            const eqValid = slots[16] && slots[17];
+            const n3 = parseDigit(slots.slice(18, 25));
+
+            if (n1 === null || n2 === null || n3 === null || !opH || !eqValid) {
+                errorDiv.textContent = "Niektóre cyfry lub znaki są nieczytelne!";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const result = opV ? (n1 + n2) : (n1 - n2);
+
+            if (result !== n3) {
+                errorDiv.textContent = `Błąd: ${n1} ${opV ? '+' : '-'} ${n2} nie równa się ${n3}!`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (moved !== 2) {
+                errorDiv.textContent = `Równanie jest poprawne, ale musisz przełożyć DOKŁADNIE 2 zapałki (użyto: ${moved})!`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Успіх! Запускаємо 3-годинний таймер
+            const endTime = Date.now() + TIMER_HOURS * 3600 * 1000;
+            localStorage.setItem('quest_timer_end', endTime.toString());
+            showStep(5);
+            startPersistentTimer(endTime);
+        }
+
+        // --- ПОСТІЙНИЙ ТАЙМЕР ---
+        function startPersistentTimer(endTime) {
+            const display = document.getElementById('countdown');
+            if (timerInterval) clearInterval(timerInterval);
+
+            function update() {
+                const now = Date.now();
+                const diff = Math.max(0, Math.floor((endTime - now) / 1000));
+
+                const hours = Math.floor(diff / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = diff % 60;
+
+                const hStr = hours < 10 ? "0" + hours : hours;
+                const mStr = minutes < 10 ? "0" + minutes : minutes;
+                const sStr = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = `${hStr}:${mStr}:${sStr}`;
+
+                if (diff <= 0 && timerInterval) {
+                    clearInterval(timerInterval);
+                }
+            }
+
+            update();
+            timerInterval = setInterval(update, 1000);
         }
     </script>
 </body>
