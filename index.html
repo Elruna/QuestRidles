@@ -170,7 +170,6 @@
             height: 88px;
         }
 
-        /* Зона натискання сірника */
         .slot {
             position: absolute;
             cursor: pointer;
@@ -179,7 +178,6 @@
             align-items: center;
             z-index: 2;
         }
-        /* Горизонтальні слоти */
         .slot.h {
             width: 36px;
             height: 18px;
@@ -189,7 +187,6 @@
         .slot.h.mid { top: 35px; }
         .slot.h.bot { top: 74px; }
 
-        /* Вертикальні слоти */
         .slot.v {
             width: 18px;
             height: 36px;
@@ -199,7 +196,6 @@
         .slot.v.bl { top: 46px; left: -4px; }
         .slot.v.br { top: 46px; right: -4px; }
 
-        /* Оператори + / - та = */
         .op-box .slot.h.op-h {
             width: 34px;
             height: 18px;
@@ -226,7 +222,6 @@
             top: 45px;
         }
 
-        /* Візуал самого сірника і порожнього місця */
         .stick-visual {
             border-radius: 3px;
             transition: all 0.15s ease;
@@ -241,7 +236,6 @@
             height: 30px;
         }
 
-        /* Порожній слот */
         .slot.empty .stick-visual {
             border: 1px dashed rgba(0, 255, 102, 0.25);
             background: rgba(0, 255, 102, 0.03);
@@ -251,7 +245,6 @@
             background: rgba(0, 255, 102, 0.12);
         }
 
-        /* Заповнений сірник (дерев'яна паличка + червона голівка) */
         .slot.filled .stick-visual {
             background: linear-gradient(90deg, #deb887, #c69c6d);
             box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
@@ -279,7 +272,6 @@
             box-shadow: 0 0 4px rgba(255, 60, 0, 0.6);
         }
 
-        /* Вибраний сірник (піднятий) */
         .slot.selected .stick-visual {
             transform: scale(1.22);
             box-shadow: 0 0 12px #ffcc00, 0 0 4px #ffffff;
@@ -316,13 +308,13 @@
             <div id="pin-error" class="error">Błędny PIN! Spróbuj ponownie.</div>
         </div>
 
-        <!-- Етап 2: Папірець -->
+        <!-- Етап 2: Введення ключа з записки -->
         <div id="step-2" class="hidden">
-            <h1>ETAP 2</h1>
-            <p>NA 3 PIĘTRZE NA KARTCE SCHOWANE JEST HASŁO.<br><br>Wpisz odnalezione słowo:</p>
-            <input type="text" id="paper-input" placeholder="Słowo z kartki" onkeypress="if(event.key==='Enter') checkPaper()">
-            <button onclick="checkPaper()">SPRAWDŹ</button>
-            <div id="paper-error" class="error">Niepoprawne słowo!</div>
+            <h1>ETAP 2: KLUCZ DOSTĘPU</h1>
+            <p>Wprowadź hasło z ukrytej wiadomości:</p>
+            <input type="text" id="key-input" placeholder="Wpisz klucz" onkeypress="if(event.key==='Enter') checkKey()">
+            <button onclick="checkKey()">SPRAWDŹ</button>
+            <div id="key-error" class="error">Niepoprawny klucz! Spróbuj ponownie.</div>
         </div>
 
         <!-- Етап 3: Wordle (англійською) -->
@@ -343,9 +335,7 @@
             
             <div class="match-status" id="match-status">Kliknij zapałkę, aby ją podnieść</div>
 
-            <div class="match-board" id="match-board">
-                <!-- Генерується через JS -->
-            </div>
+            <div class="match-board" id="match-board"></div>
 
             <button onclick="checkMatches()">ZATWIERDŹ RÓWNANIE</button>
             <button class="secondary-btn" onclick="resetMatches()">RESETUJ ZAPAŁKI</button>
@@ -363,33 +353,26 @@
 
     <script>
         const CORRECT_PIN = "12345";
-        const PAPER_PASSWORD = "KLUCZ";
-        const SECRET_WORD = "PLANT";
+        const KEY_ANSWERS = ["KOREK", "KOREK ULICZNY", "KOREK DROGOWY"];
+        const SECRET_WORD = "AGENT";
         const TIMER_HOURS = 3;
 
         let currentAttempt = 0;
         const maxAttempts = 5;
         let timerInterval = null;
 
-        // Початковий стан сірників: 9 - 3 = 0
-        // Сегменти цифри: [top, tl, tr, mid, bl, br, bot]
+        // Початковий стан сірників: 9 - 3 = 0 -> розв'язок: 3 + 3 = 6
         const INITIAL_SLOTS = [
-            // Digit 1: 9
             true, true, true, true, false, true, true,
-            // Operator: - [horiz, vert]
             true, false,
-            // Digit 2: 3
             true, false, true, true, false, true, true,
-            // Equals: = [top, bot]
             true, true,
-            // Digit 3: 0
             true, true, true, false, true, true, true
         ];
 
         let slots = [...INITIAL_SLOTS];
         let selectedIndex = null;
 
-        // Відновлення прогресу при завантаженні сторінки
         window.onload = function() {
             const savedStep = localStorage.getItem('quest_step');
             const savedEndTime = localStorage.getItem('quest_timer_end');
@@ -425,13 +408,13 @@
             }
         }
 
-        function checkPaper() {
-            const val = document.getElementById('paper-input').value.trim().toUpperCase();
-            if (val === PAPER_PASSWORD) {
+        function checkKey() {
+            const val = document.getElementById('key-input').value.trim().toUpperCase();
+            if (KEY_ANSWERS.includes(val)) {
                 showStep(3);
                 initWordleBoard();
             } else {
-                document.getElementById('paper-error').style.display = 'block';
+                document.getElementById('key-error').style.display = 'block';
             }
         }
 
@@ -518,7 +501,6 @@
                 'h top', 'v tl', 'v tr', 'h mid', 'v bl', 'v br', 'h bot'
             ];
 
-            // Допоміжна функція для створення слоту
             function createSlot(index, extraClass) {
                 const slot = document.createElement('div');
                 slot.className = `slot ${extraClass} ${slots[index] ? 'filled' : 'empty'}`;
@@ -533,33 +515,28 @@
                 return slot;
             }
 
-            // Digit 1 (індекси 0..6)
             const d1 = document.createElement('div');
             d1.className = 'digit-box';
             for (let i = 0; i < 7; i++) d1.appendChild(createSlot(i, digitClasses[i]));
             board.appendChild(d1);
 
-            // Operator (індекси 7..8)
             const op = document.createElement('div');
             op.className = 'op-box';
             op.appendChild(createSlot(7, 'h op-h'));
             op.appendChild(createSlot(8, 'v op-v'));
             board.appendChild(op);
 
-            // Digit 2 (індекси 9..15)
             const d2 = document.createElement('div');
             d2.className = 'digit-box';
             for (let i = 0; i < 7; i++) d2.appendChild(createSlot(9 + i, digitClasses[i]));
             board.appendChild(d2);
 
-            // Equals (індекси 16..17)
             const eq = document.createElement('div');
             eq.className = 'eq-box';
             eq.appendChild(createSlot(16, 'h eq-t'));
             eq.appendChild(createSlot(17, 'h eq-b'));
             board.appendChild(eq);
 
-            // Digit 3 (індекси 18..24)
             const d3 = document.createElement('div');
             d3.className = 'digit-box';
             for (let i = 0; i < 7; i++) d3.appendChild(createSlot(18 + i, digitClasses[i]));
@@ -572,21 +549,17 @@
             document.getElementById('match-error').style.display = 'none';
 
             if (selectedIndex === null) {
-                // Підняти сірник
                 if (slots[index]) {
                     selectedIndex = index;
                     renderMatchBoard();
                 }
             } else if (selectedIndex === index) {
-                // Покласти назад на те саме місце
                 selectedIndex = null;
                 renderMatchBoard();
             } else if (slots[index]) {
-                // Перемкнутися на інший сірник
                 selectedIndex = index;
                 renderMatchBoard();
             } else {
-                // Перемістити сірник у порожній слот
                 slots[selectedIndex] = false;
                 slots[index] = true;
                 selectedIndex = null;
@@ -676,7 +649,6 @@
                 return;
             }
 
-            // Успіх! Запускаємо 3-годинний таймер
             const endTime = Date.now() + TIMER_HOURS * 3600 * 1000;
             localStorage.setItem('quest_timer_end', endTime.toString());
             showStep(5);
